@@ -3,12 +3,11 @@ import {
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
-  Connection,
   SystemProgram,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import React, { useState } from "react";
+import { useState } from "react";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
 import "./App.css";
 import { connection } from "./constants";
@@ -29,49 +28,52 @@ function App() {
       const _keyPair = Keypair.fromSecretKey(secretKey);
       setKeyPair(_keyPair);
       enqueueSnackbar(`import account: ${_keyPair.publicKey.toString()}`, {
-        variant: "success"
+        variant: "success",
       });
       setPublicKey(_keyPair.publicKey.toString());
-    } catch(e) {
+    } catch (e) {
       enqueueSnackbar("Invalid private key", {
-        variant: "error"
-      })
+        variant: "error",
+      });
     }
   };
 
   const onBalance = () => {
-    if(!keyPair) {
+    if (!keyPair) {
       enqueueSnackbar("Please import private key", {
-        variant: "error"
+        variant: "error",
       });
       return;
     }
     connection.getBalance(keyPair.publicKey).then((balance: number) => {
-      enqueueSnackbar(`${publicKey} has a balance of ${balance/LAMPORTS_PER_SOL}`, {
-        variant: "success"
-      });
+      enqueueSnackbar(
+        `${publicKey} has a balance of ${balance / LAMPORTS_PER_SOL}`,
+        {
+          variant: "success",
+        },
+      );
       setBalance(balance);
     });
   };
 
   const onTransfer = async () => {
-    if(!keyPair) {
+    if (!keyPair) {
       enqueueSnackbar("Please import private key", {
-        variant: "error"
+        variant: "error",
       });
       return;
     }
-    if(!toCount) {
+    if (!toCount) {
       enqueueSnackbar("Please input a valid count", {
-        variant: "error"
+        variant: "error",
       });
       return;
     }
     enqueueSnackbar(`transfer to ${toPublicKey} ${toCount} SOL`, {
-      variant: 'info'
+      variant: "info",
     });
     enqueueSnackbar(`pending...`, {
-      variant: 'info'
+      variant: "info",
     });
     const txInstructions = [
       SystemProgram.transfer({
@@ -81,13 +83,13 @@ function App() {
       }),
     ];
 
-    let latestBlockhash = await connection.getLatestBlockhash("finalized");
+    const latestBlockhash = await connection.getLatestBlockhash("finalized");
     enqueueSnackbar(
       `   ✅ - Fetched latest blockhash. Last Valid Height: 
       ${latestBlockhash.lastValidBlockHeight}`,
       {
-        variant: 'info'
-      }
+        variant: "info",
+      },
     );
 
     const messageV0 = new TransactionMessage({
@@ -101,11 +103,11 @@ function App() {
       trx.sign([keyPair]);
       const txHash = await connection.sendTransaction(trx);
       enqueueSnackbar(`Transfer Success. Tx Hash: ${txHash}`, {
-        variant: 'success'
+        variant: "success",
       });
-    } catch(e) {
+    } catch (e) {
       enqueueSnackbar(`Transfer Failed`, {
-        variant: 'error'
+        variant: "error",
       });
       throw e;
     }
@@ -131,7 +133,7 @@ function App() {
       </div>
       <div className="flex-box">
         <p>Balance:</p>
-        <p>{balance ? balance/LAMPORTS_PER_SOL + ' sol': ''}</p>
+        <p>{balance ? balance / LAMPORTS_PER_SOL + " sol" : ""}</p>
         <button onClick={onBalance}>QUERY</button>
       </div>
       <div className="flex-box">
@@ -152,16 +154,12 @@ function App() {
           value={toCount}
           onChange={(e) => {
             const value = e.target.value;
-            if(isInputDigit(value)) {
-              setToCount(
-                value
-              );
+            if (isInputDigit(value)) {
+              setToCount(value);
             }
           }}
         />
-        <button onClick={onTransfer}>
-          TRANSFER
-        </button>
+        <button onClick={onTransfer}>TRANSFER</button>
       </div>
       <SnackbarProvider />
     </div>
